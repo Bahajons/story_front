@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import axios from 'axios'
-import { API } from '../API'
+import { API } from '../../API'
 import { useNavigate } from 'react-router-dom'
 
 
@@ -12,8 +12,13 @@ export default function Login() {
   const navigate = useNavigate()
 
 
+
   const Login = () => {
-    axios.post('http://localhost:5000/api/login', { email, password })
+    const fd = new FormData()
+    fd.append('email', email)
+
+
+    axios.post('http://localhost:5000/api/login', {email,password})
       .then((res) => {
         console.log(res);
         localStorage.setItem('token', res.data.token);

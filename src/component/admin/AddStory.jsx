@@ -27,8 +27,8 @@ export default function AddStory() {
   const add_story = () => {
 
     const fd = new FormData()
-    if (image && name_book && written_by && time_read && short_descr && full_descr) {
-      fd.append('image', image, image.name,)
+    if ( name_book && written_by && time_read && short_descr && full_descr) {
+      fd.append('image', image, image.name)
       fd.append('name_book', name_book)
       fd.append('written_by', written_by)
       fd.append('time_read', time_read)
@@ -40,7 +40,7 @@ export default function AddStory() {
 
       let token = localStorage.getItem('token')
 
-      axios.post('http://localhost:5000/api/story', fd,
+      axios.post('http://localhost:5000/api/story',fd,
         {
           headers: {
             token: `${token}`
