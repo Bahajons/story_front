@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Switch, Typography } from 'antd';
 import axios from 'axios';
-import { API } from '../API';
+import { API } from './utils/API';
 import { Styled_story_detail } from './styled_story_detail';
 
 const { Paragraph, Text } = Typography;

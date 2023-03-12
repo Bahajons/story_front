@@ -3,7 +3,7 @@ import { Card } from 'antd';
 const { Meta } = Card;
 
 export default function Home() {
-
+  const deviceId = navigator.userAgent;
 
 
 
@@ -16,16 +16,16 @@ export default function Home() {
           <div className="col-8">
             <div className="row">
               <div className="col-md-4">
-            <Card
-              hoverable
-              style={{
-                width: '100%',
-              }}
-              cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
-            >
-              <Meta title="Europe Street beat" avatar=""  description="www.instagram.com" />
-              
-            </Card>
+                <Card
+                  hoverable
+                  style={{
+                    width: '100%',
+                  }}
+                  cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
+                >
+                  <Meta title="Europe Street beat" avatar="" description="www.instagram.com" />
+
+                </Card>
 
               </div>
             </div>
@@ -34,6 +34,9 @@ export default function Home() {
 
           </div>
         </div>
+        <h5>Device Id: {deviceId}</h5>
+        <h5>Device Id: {typeof (deviceId)}</h5>
+        {console.log(deviceId)}
       </div>
 
 
