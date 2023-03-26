@@ -7,8 +7,9 @@ import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import EditStory from './EditStory'
+import { deletestory, getstory } from '../utils/fetch_api'
 
-export default function Admin() {
+export default function ListStory() {
 
   const [story, setStory] = useState()
   const navigate = useNavigate()
@@ -19,25 +20,17 @@ export default function Admin() {
 
 
 
-  const GetStory = () => {
-    let token = localStorage.getItem('token')
+  async function get_story() {
 
-    let config = {
-      headers: {
-        token: `${token}`
-      }
+    try {
+      const result = await getstory()
+      setStory(result.data)
+      console.log(result);
+    } catch (error) {
+
     }
-    axios.get(`${API}/api/story`, config)
-      .then((res) => {
-        console.log(res.data);
-        setStory(res.data)
 
-      })
-      .catch((res) => {
-        console.log(res);
-      })
   }
-
 
   const get_one = (id) => {
 
@@ -47,13 +40,17 @@ export default function Admin() {
     });
     console.log(obj);
     dispatch({ type: 'ONE', action: obj })
-    return obj;
+
+    navigate(`/admin/editstory/${id}`)
   }
 
 
 
+
+
+
   useEffect(() => {
-    GetStory()
+    get_story()
   }, [])
 
   const edit_story = (id) => {
@@ -61,32 +58,26 @@ export default function Admin() {
     console.log(id);
   }
 
-  const delete_story = (id) => {
-    let token = localStorage.getItem('token')
-    let config = {
-      headers: {
-        token: `${token}`
-      }
+  const delete_story = async (id) => {
+    try {
+      const result = await deletestory(id)
+      console.log(result);
+      toast.success('Story deleted', {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      get_story()
+    } catch (error) {
+      console.log(error);
     }
-    axios.delete(`${API}/api/story/${id}`, config)
-      .then((res) => {
-        console.log(res)
-        toast.warn("Ma'lumot muvofaqqiyatli O'chirildi !", {
-          position: "bottom-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        })
-        GetStory()
-      })
-      .catch((err) => {
-        console.log(err);
-      })
   }
+
 
 
 
@@ -95,11 +86,11 @@ export default function Admin() {
     <div>
       <div className="container-fluid">
         <div className='d-flex justify-content-end mt-2'>
-          <button className="btn btn-primary" onClick={() => { navigate('/addstory') }}><b>+</b>Hikoya qo'shish</button>
+          <button className="btn btn-primary" onClick={() => { navigate('/admin/addstory') }}><b>+</b>Hikoya qo'shish</button>
         </div>
         <ToastContainer
           position="bottom-center"
-          autoClose={3000}
+          autoClose={5000}
           hideProgressBar={false}
           newestOnTop={false}
           closeOnClick
@@ -107,7 +98,8 @@ export default function Admin() {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          theme="dark" />
+          theme="light"
+        />
         <div className='pt-5' style={{ width: '100%', overflowX: 'scroll' }}>
           {story ? <table className="table" >
             <thead>
@@ -159,12 +151,12 @@ export default function Admin() {
                   </td>
                   <td>
                     <div style={{ width: '200px', wordWrap: 'break-word', height: '70px', overflow: 'hidden' }}>
-                      <img className='w-100' src={`${API}/${item.img.url}`} alt="" />
+                      <img className='w-100' src={`${API}/${item?.img}`} alt="" />
                     </div>
                   </td>
                   <td>
                     <div className="d-flex">
-                      <div className="btn btn-warning mx-1" onClick={() => { edit_story(item._id); dispatch({ type: 'ID', action: item._id }); get_one(item._id) }} data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit</div>
+                      <div className="btn btn-warning mx-1" onClick={() => { get_one(item._id) }}>Edit</div>
                       <div className="btn btn-danger mx-1" onClick={() => { delete_story(item._id) }}>Delete</div>
                     </div>
                   </td>
@@ -172,24 +164,6 @@ export default function Admin() {
               })}
             </tbody>
           </table> : <h6>Loading...</h6>}
-        </div>
-
-        {/* <!-- Modal --> */}
-        <div className="modal modal-lg fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title fs-5" id="staticBackdropLabel">Tahrirlash</h1>
-                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div className="modal-body">
-                <EditStory />
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div >

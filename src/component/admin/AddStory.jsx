@@ -7,6 +7,8 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { addstory } from '../utils/fetch_api';
+import Editor from '../utils/Editor';
 
 
 export default function AddStory() {
@@ -19,16 +21,29 @@ export default function AddStory() {
   const [age_for, setAge_for] = useState('')
   const [youtube_link, setYoutube_link] = useState('')
   const [telegram_link, setTelegram_link] = useState('')
-  const [short_descr, setShort_descr] = useState('<p></p>')
-  const [full_descr, setFull_descr] = useState('<p></p>')
+  const [short_descr, setShort_descr] = useState('')
+  const [full_descr, setFull_descr] = useState('')
+
   const navigate = useNavigate()
+  const [error, setError] = useState({
+    image: false,
+    name_book: false,
+    written_by: false,
+    time_read: false,
+    age_for: false,
+    short_descr: false,
+    full_descr: false
+  })
 
-
-  const add_story = () => {
+  async function add_story() {
 
     const fd = new FormData()
-    if ( name_book && written_by && time_read && short_descr && full_descr) {
-      fd.append('image', image, image.name)
+
+    if (name_book && written_by && time_read && short_descr && full_descr) {
+
+      if (image) {
+        fd.append('image', image, image.name)
+      }
       fd.append('name_book', name_book)
       fd.append('written_by', written_by)
       fd.append('time_read', time_read)
@@ -38,27 +53,18 @@ export default function AddStory() {
       fd.append('short_descr', short_descr)
       fd.append('full_descr', full_descr)
 
-      let token = localStorage.getItem('token')
+      try {
+        const result = await addstory(fd)
+        navigate(-1)
+      } catch (error) {
 
-      axios.post('http://localhost:5000/api/story',fd,
-        {
-          headers: {
-            token: `${token}`
-          }
-        })
-        .then((res) => {
-          console.log(res);
-          toast("Ma'lumot muvofaqqiyatli qo'shildi !")
-          clean_field()
-        })
-        .catch((err) => {
-          console.log(err);
-        })
+      }
     }
     else {
       toast("Maydonlarni to'ldiring !")
     }
   }
+
   const clean_field = () => {
     setImage('')
     setShow_image('')
@@ -78,6 +84,25 @@ export default function AddStory() {
     }
   }
 
+  function submit(e) {
+    e.preventDefault()
+    let err = {
+    }, t = true
+    if (!(show_image)) { t = false; err = { ...err, image: true } }
+    if (!(name_book)) { t = false; err = { ...err, name_book: true } }
+    if (!(written_by)) { t = false; err = { ...err, written_by: true } }
+    if (!(time_read)) { t = false; err = { ...err, time_read: true } }
+    if (!(age_for)) { t = false; err = { ...err, age_for: true } }
+    if (!(full_descr)) { t = false; err = { ...err, full_descr: true } }
+    if (!(short_descr)) { t = false; err = { ...err, short_descr: true } }
+    if (t) {
+      add_story()
+      console.log('fddf');
+    }
+
+    setError(err)
+  }
+
 
 
 
@@ -86,12 +111,14 @@ export default function AddStory() {
       <div className="mt-4">
         <div className="container">
           <div className="d-flex justify-content-end">
-            <button className="btn btn-primary" onClick={() => navigate('/admin')}>Bazaga</button>
+            <button className="btn btn-primary" onClick={() => navigate('/admin/liststory')}>Bazaga</button>
           </div>
           <ToastContainer />
-          <div>
+          <form onSubmit={submit}>
+            <h4 className='text-center pb-2'>Hikoya qo'shish</h4>
             <div className="mb-3">
-              <label htmlFor="exampleFormControlInput0" className="form-label">
+              <label htmlFor="image" className="form-label">
+                <i className='text-success'>O'lcham 640x360px yoki 17x10sm rasm tavsiya qilinadi !</i>
                 {show_image ?
                   <div style={{ width: '256px', height: '144px', overflow: 'hidden' }}>
                     <img src={show_image} className='w-100' />
@@ -100,94 +127,62 @@ export default function AddStory() {
                     <span >Rasm tanlang</span>
                   </div>
                 }
+                {error?.image ? <span className='text-danger'>Rasmni kiriting</span> : ''}
               </label>
-              <input type="file" className="form-control d-none" id="exampleFormControlInput0"
-                onChange={(e) => { setImage(e.target.files[0]); onImageChange(e); console.log(e.target.files[0]); }}
+              <input type="file" className="form-control d-none" id="image"
+                onChange={(e) => { setImage(e.target.files[0]); onImageChange(e); }}
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="exampleFormControlInput1" className="form-label">Kitob nomi</label>
-              <input type="text" className="form-control" id="exampleFormControlInput1"
+              <label htmlFor="name_book" className="form-label">Kitob nomi</label>
+              <input type="text" className="form-control" id="name_book"
                 onChange={(e) => setName_book(e.target.value)} value={name_book} />
+              {error.name_book ? <span className='text-danger'>Kitob nomini kiriting</span> : ''}
             </div>
             <div className="mb-3">
-              <label htmlFor="exampleFormControlInput2" className="form-label">Muallif</label>
-              <input type="text" className="form-control" id="exampleFormControlInput2"
+              <label htmlFor="written_by" className="form-label">Muallif</label>
+              <input type="text" className="form-control" id="written_by"
                 onChange={(e) => { setWritten_by(e.target.value) }} value={written_by}
               />
+              {error?.written_by ? <span className='text-danger'>Muallifni kiriting</span> : ''}
             </div>
             <div className="mb-3">
-              <label htmlFor="exampleFormControlInput3" className="form-label">O'qish vaqti</label>
-              <input type="text" className="form-control" id="exampleFormControlInput3"
+              <label htmlFor="time_read" className="form-label">O'qish vaqti</label>
+              <input type="text" className="form-control" id="time_read"
                 onChange={(e) => setTime_read(e.target.value)} value={time_read}
               />
+              {error?.time_read ? <span className='text-danger'>O'qish vaqtini kiriting</span> : ''}
             </div>
             <div className="mb-3">
-              <label htmlFor="exampleFormControlInput8" className="form-label">Yosh chegarasi</label>
-              <input type="text" className="form-control" id="exampleFormControlInput8"
+              <label htmlFor="age_for" className="form-label">Yosh chegarasi</label>
+              <input type="text" className="form-control" id="age_for"
                 onChange={(e) => setAge_for(e.target.value)} value={age_for} />
+              {error?.age_for ? <span className='text-danger'>Yosh chegarasini kiriting</span> : ''}
             </div>
             <div className="mb-3">
-              <label htmlFor="exampleFormControlInput4" className="form-label">Youtube linki</label>
-              <input type="text" className="form-control" id="exampleFormControlInput4"
+              <label htmlFor="youtube_link" className="form-label">Youtube linki</label>
+              <input type="text" className="form-control" id="youtube_link"
                 onChange={(e) => setYoutube_link(e.target.value)} value={youtube_link} />
             </div>
             <div className="mb-3">
-              <label htmlFor="exampleFormControlInput5" className="form-label">Telegram linki</label>
-              <input type="text" className="form-control" id="exampleFormControlInput5"
+              <label htmlFor="telegram_link" className="form-label">Telegram linki</label>
+              <input type="text" className="form-control" id="telegram_link"
                 onChange={(e) => setTelegram_link(e.target.value)} value={telegram_link} />
             </div>
             <div className="mb-3">
-              <label htmlFor="exampleFormControlInput6" className="form-label">Qizqacha kitob haqida</label>
-              <CKEditor
-                editor={ClassicEditor}
-                id="exampleFormControlInput6"
-                data={short_descr}
-                onReady={editor => {
-                  // You can store the "editor" and use when it is needed.
-                  console.log('Editor is ready to use!', editor);
-                }}
-                onChange={(event, editor) => {
-                  const data = editor.getData();
-                  setShort_descr(data)
-                  console.log({ data });
-                }}
-                onBlur={(event, editor) => {
-                  // console.log('Blur.', editor);
-                }}
-                onFocus={(event, editor) => {
-                  // console.log('Focus.', editor);
-                }}
-              />
+              <label htmlFor="short_descr" className="form-label">Qizqacha kitob haqida</label>
+              <Editor value={short_descr} setValue={e => {setShort_descr(e)}} />
+              {error?.short_descr ? <span className='text-danger'>Ushbu maydonni to'ldiring</span> : ''}
             </div>
             <div className="mb-3">
-              <label htmlFor="exampleFormControlInput7" className="form-label">Kitobni to'liq matni</label>
-              <CKEditor
-                editor={ClassicEditor}
-                id="exampleFormControlInput7"
-                data={full_descr}
-                onReady={editor => {
-                  // You can store the "editor" and use when it is needed.
-                  console.log('Editor is ready to use!', editor);
-                }}
-                onChange={(event, editor) => {
-                  const data = editor.getData();
-                  setFull_descr(data)
-                  console.log({ data });
-                }}
-                onBlur={(event, editor) => {
-                  // console.log('Blur.', editor);
-                }}
-                onFocus={(event, editor) => {
-                  // console.log('Focus.', editor);
-                }}
-              />
-
+              <label htmlFor="full_descr" className="form-label">Kitobni to'liq matni</label>
+              <Editor value={full_descr} setValue={e => {setFull_descr(e);console.log(e);}} />
+              {error?.full_descr ? <span className='text-danger'>Ushbu maydonni to'ldiring</span> : ''}
             </div>
             <div className="mb-3">
-              <button className='btn btn-primary' onClick={() => { add_story() }}>Qo'shish</button>
+              <button type='submit' className='btn btn-primary'>Qo'shish</button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.min.js'
+import './custom.css'
 import { legacy_createStore as createStore } from 'redux'
 import { useReducer } from './component/reducer/useReducer';
 import { Provider } from 'react-redux';

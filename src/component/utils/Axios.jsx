@@ -1,16 +1,15 @@
-import axios, { delete as del, get, post, put } from 'axios';
+import axios from 'axios';
+import { API } from './API';
+const { get, post, put, patch, } = axios
 const Axios = () => {
   const token = localStorage.getItem('token');
   const defaultOptions = {
-    baseURL: process.env.REACT_APP_API_URL,
+    baseURL: API,
     headers: token
       ? {
-          Authorization: `Bearer ${token}`,
-        }
-      : {},
-    params: {
-      lan: localStorage.getItem('i18nextLng') || 'uz',
-    },
+        Authorization: `Bearer ${token}`,
+      }
+      : {}
   };
   return {
     get: (url, options = {}) => get(url, { ...defaultOptions, ...options }),
@@ -18,7 +17,11 @@ const Axios = () => {
       post(url, data, { ...defaultOptions, ...options }),
     put: (url, data, options = {}) =>
       put(url, data, { ...defaultOptions, ...options }),
-    delete: (url, options = {}) => del(url, { ...defaultOptions, ...options }),
+    patch: (url, data, options = {}) =>
+      patch(url, data, { ...defaultOptions, ...options }),
+    put: (url, data, options = {}) =>
+      put(url, data, { ...defaultOptions, ...options }),
+    deleteItem: (url, options = {}) => axios.delete(url, { ...defaultOptions, ...options }),
   };
 };
 export default Axios;
